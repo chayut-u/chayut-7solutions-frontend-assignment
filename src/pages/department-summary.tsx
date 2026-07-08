@@ -67,6 +67,17 @@ export default function DepartmentSummaryPage() {
                   </span>
                 ))}
               </div>
+              <details className="dept-card__addresses">
+                <summary>Addresses ({Object.keys(summary.addressUser).length})</summary>
+                <ul>
+                  {Object.entries(summary.addressUser).map(([name, postalCode]) => (
+                    <li key={name}>
+                      <span>{name}</span>
+                      <span>{postalCode}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </section>
           ))}
         </div>

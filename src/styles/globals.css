@@ -223,6 +223,34 @@ a {
   color: var(--color-text-dim);
 }
 
+.dept-card__addresses {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.dept-card__addresses summary {
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+  cursor: pointer;
+}
+
+.dept-card__addresses ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dept-card__addresses li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+  padding: 0.25rem 0;
+}
+
 .state-message {
   color: var(--color-text-dim);
   font-size: 0.95rem;

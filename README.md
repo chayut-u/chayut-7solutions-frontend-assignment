@@ -2,11 +2,14 @@
 
 โปรเจกต์เดียว 2 หน้า สำหรับ 7solutions Frontend Challenge เขียนด้วย Next.js + TypeScript
 
-**Deploy:** https://frontend-coding-test-ebon.vercel.app
+## ลิงก์ทดสอบ
 
-- หน้าแรก (`/`) — nav ลิงก์ไปสองหน้าด้านล่าง
-- **[`/todo`](https://frontend-coding-test-ebon.vercel.app/todo)** — ข้อ 1 (required): Auto Delete Todo List
-- **[`/department-summary`](https://frontend-coding-test-ebon.vercel.app/department-summary)** — ข้อ 2 (optional bonus): Department Summary จาก dummyjson
+| ข้อ | ลิงก์ |
+|-----|------|
+| **ข้อ 1** (required) — Auto Delete Todo List | https://frontend-coding-test-ebon.vercel.app/todo |
+| **ข้อ 2** (optional bonus) — Department Summary | https://frontend-coding-test-ebon.vercel.app/department-summary |
+
+หน้าแรก (`/`) มี nav ลิงก์ไปทั้งสองหน้าให้เช่นกัน: https://frontend-coding-test-ebon.vercel.app
 
 ---
 
@@ -47,25 +50,38 @@ npm start
 - cache ผลลัพธ์จาก dummyjson ไว้ 60 วินาทีใน memory เพราะข้อมูลแทบไม่เปลี่ยน ไม่ต้องยิง API ใหม่ทุก request
 - ดึงข้อมูลครั้งเดียวด้วย `?limit=0` แทนการแบ่งหน้าดึงหลายรอบ
 
-## โครงสร้างโปรเจกต์
+## ไฟล์ไหนอยู่ตรงไหนบ้าง
 
-```
-src/
-├── pages/
-│   ├── index.tsx                 # หน้าแรก มี nav
-│   ├── todo.tsx                  # ข้อ 1
-│   ├── department-summary.tsx    # ข้อ 2
-│   └── api/departments.ts        # API route: ดึงข้อมูล + transform
-├── components/todo/               # MainList, CategoryColumn, ItemButton
-├── hooks/useTodoList.ts           # logic ของ Todo List ทั้งหมด
-├── lib/
-│   ├── fetchUsers.ts              # เรียก dummyjson + cache
-│   └── transform.ts               # groupBy department (pure function)
-├── types/
-└── styles/globals.css
-tests/
-└── transform.test.ts              # unit test 7 เคส
-```
+### ข้อ 1 — Auto Delete Todo List
+
+| ไฟล์ | หน้าที่ |
+|------|--------|
+| `src/pages/todo.tsx` | หน้าเพจ ประกอบ MainList + CategoryColumn เข้าด้วยกัน |
+| `src/hooks/useTodoList.ts` | logic ทั้งหมด — ย้าย item, ตั้ง timer 5 วิ, ยกเลิก/คืนกลับ |
+| `src/components/todo/MainList.tsx` | คอลัมน์ซ้าย (ลิสต์หลัก) |
+| `src/components/todo/CategoryColumn.tsx` | คอลัมน์ขวา (Fruit / Vegetable) |
+| `src/components/todo/ItemButton.tsx` | ปุ่ม item ตัวเดียว ใช้ร่วมกันทั้งสองฝั่ง |
+| `src/constants/items.ts` | ข้อมูลตั้งต้น 11 อย่าง + ค่าเวลา 5 วิ |
+| `src/types/todo.ts` | type `TodoItem`, `ItemType` |
+
+### ข้อ 2 — Department Summary (Bonus)
+
+| ไฟล์ | หน้าที่ |
+|------|--------|
+| `src/pages/department-summary.tsx` | หน้าเพจ เรียก API แล้วโชว์ผลสรุปเป็นการ์ดต่อแผนก |
+| `src/pages/api/departments.ts` | HTTP endpoint (`GET /api/departments`) — เรียก fetch + transform แล้วส่ง JSON กลับ |
+| `src/lib/fetchUsers.ts` | ไปดึงข้อมูลจาก `dummyjson.com/users` (มี timeout + cache 60 วิ) |
+| `src/lib/transform.ts` | ฟังก์ชัน `transformUsers` — group ข้อมูลตาม department (pure function ไม่ยุ่งกับ HTTP) |
+| `src/types/user.ts` | type `SourceUser`, `DepartmentSummary` |
+| `tests/transform.test.ts` | unit test ของ `transformUsers` ทั้ง 7 เคส |
+
+### ใช้ร่วมกันทั้งสองข้อ
+
+| ไฟล์ | หน้าที่ |
+|------|--------|
+| `src/pages/index.tsx` | หน้าแรก มี nav ลิงก์ไปทั้งสองข้อ |
+| `src/pages/_app.tsx` | จุดเริ่มของ Next.js, import CSS กลาง |
+| `src/styles/globals.css` | style ทั้งหมดของทั้งแอป |
 
 ## Deploy เอง
 
