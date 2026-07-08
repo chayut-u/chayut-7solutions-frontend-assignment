@@ -1,22 +1,23 @@
 # frontend-coding-test
 
-Next.js + TypeScript. One app, two pages, for the 7solutions frontend challenge.
+โปรเจกต์เดียว 2 หน้า สำหรับ 7solutions Frontend Challenge เขียนด้วย Next.js + TypeScript
 
-**Deploy:** https://xxx.vercel.app
+**Deploy:** https://frontend-coding-test-ebon.vercel.app
 
-## Pages
+- หน้าแรก (`/`) — nav ลิงก์ไปสองหน้าด้านล่าง
+- **[`/todo`](https://frontend-coding-test-ebon.vercel.app/todo)** — ข้อ 1 (required): Auto Delete Todo List
+- **[`/department-summary`](https://frontend-coding-test-ebon.vercel.app/department-summary)** — ข้อ 2 (optional bonus): Department Summary จาก dummyjson
 
-- **`/todo`** — Auto Delete Todo List (required). Click an item to move it into its category column (Fruit / Vegetable); it auto-returns to the main list after 5 seconds unless clicked again first to cancel immediately.
-- **`/department-summary`** — Department Summary (optional bonus). Fetches `dummyjson.com/users` via `/api/departments`, groups by department, and shows counts, age range, and hair color breakdown per department.
+---
 
-## Run locally
+## รันเครื่อง local
 
 ```bash
 npm install
 npm run dev       # http://localhost:3000
 ```
 
-## Run tests
+## รัน test
 
 ```bash
 npm test
@@ -29,50 +30,44 @@ npm run build
 npm start
 ```
 
-## Project structure
+---
+
+## ข้อ 1: Auto Delete Todo List
+
+คลิกปุ่ม item ในลิสต์หลัก มันจะย้ายไปคอลัมน์ตามประเภท (Fruit / Vegetable) แล้วอยู่บนหน้าจอ 5 วินาที ก่อนย้ายกลับไปท้ายลิสต์หลักอัตโนมัติ ถ้ากดปุ่มนั้นซ้ำตอนอยู่ในคอลัมน์ขวา จะย้ายกลับลิสต์หลักทันทีโดยไม่ต้องรอครบ 5 วิ
+
+**จุดที่ตั้งใจออกแบบเป็นพิเศษ:** ตัวจับเวลา (timer) เก็บไว้ใน `useRef` ไม่ใช่ React state เพราะ timer เป็นแค่ side effect ไม่ใช่ข้อมูลที่ต้องใช้ render หน้าจอ ถ้าเอาไปเก็บใน state จะทำให้ re-render เกินจำเป็นทุกครั้งที่ timer ทำงาน
+
+## ข้อ 2: Department Summary (Bonus)
+
+หน้านี้เรียก API ภายใน (`/api/departments`) ซึ่งไปดึงข้อมูล user จาก `dummyjson.com/users` มา group ตาม department แล้วสรุปเป็นจำนวนชาย/หญิง, ช่วงอายุ, สีผม, และที่อยู่ ตามรูปแบบที่โจทย์กำหนด
+
+**เรื่อง performance ที่ทำไว้:**
+- ฟังก์ชัน transform วน loop ข้อมูลแค่รอบเดียว (single-pass) ไม่ใช่ groupBy ก่อนแล้ววนซ้ำทีหลัง
+- cache ผลลัพธ์จาก dummyjson ไว้ 60 วินาทีใน memory เพราะข้อมูลแทบไม่เปลี่ยน ไม่ต้องยิง API ใหม่ทุก request
+- ดึงข้อมูลครั้งเดียวด้วย `?limit=0` แทนการแบ่งหน้าดึงหลายรอบ
+
+## โครงสร้างโปรเจกต์
 
 ```
 src/
 ├── pages/
-│   ├── index.tsx                 # nav landing page
-│   ├── todo.tsx                  # Todo List page
-│   ├── department-summary.tsx    # Department Summary page
-│   ├── api/departments.ts        # API route: fetch + transform, returns groupBy-department JSON
-│   └── _app.tsx
-├── components/todo/              # MainList, CategoryColumn, ItemButton
-├── hooks/useTodoList.ts          # Todo List state + timer logic
-├── constants/items.ts            # initial 11 items, 5s return delay
+│   ├── index.tsx                 # หน้าแรก มี nav
+│   ├── todo.tsx                  # ข้อ 1
+│   ├── department-summary.tsx    # ข้อ 2
+│   └── api/departments.ts        # API route: ดึงข้อมูล + transform
+├── components/todo/               # MainList, CategoryColumn, ItemButton
+├── hooks/useTodoList.ts           # logic ของ Todo List ทั้งหมด
 ├── lib/
-│   ├── fetchUsers.ts             # calls dummyjson (timeout + in-memory 60s cache)
-│   └── transform.ts              # transformUsers - pure function, single-pass O(n)
-├── types/todo.ts
-├── types/user.ts
+│   ├── fetchUsers.ts              # เรียก dummyjson + cache
+│   └── transform.ts               # groupBy department (pure function)
+├── types/
 └── styles/globals.css
 tests/
-└── transform.test.ts             # unit tests (vitest) - 7 cases
+└── transform.test.ts              # unit test 7 เคส
 ```
 
-## Design notes
-
-**Todo List**
-
-Timers are stored in a `useRef` map (`itemId -> timeoutId`), not in React state — a timer is a side effect, not render data. The cleanup effect that clears pending timers on unmount uses an empty dependency array (`[]`) deliberately: an earlier draft depended on `[activeItems]`, which fired the cleanup on every move and cancelled timers for items that hadn't reached 5 seconds yet.
-
-**Department Summary**
-
-- `transform.ts` is a pure function — it doesn't know about HTTP or `fetch`, so every test case runs against plain in-memory data with no network mocking.
-- Single-pass, O(n) — one loop computes counts, min/max age, and address mapping together, instead of grouping first and looping per group again.
-- `fetchUsers.ts` keeps an in-memory 60s cache, since `dummyjson` data is effectively static — repeated requests within the TTL skip the network call entirely.
-- `?limit=0` fetches the full user list in one request instead of paginating.
-- Known limitation (documented, not a bug): if two users share the same `firstName`+`lastName` within a department, the later one overwrites the earlier one's postal code in `addressUser`, since that field is keyed by name rather than user id — this matches the shape the assignment asked for.
-
-## API
-
-| Method | Path | Response |
-|--------|------|----------|
-| `GET` | `/api/departments` | `200` transformed data, or `502` `{"success": false, "error": {"code": "UPSTREAM_ERROR"}}` if `dummyjson` is unreachable |
-
-## Deploy
+## Deploy เอง
 
 ```bash
 npx vercel --prod
